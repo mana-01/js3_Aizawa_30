@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>line風アプリ</title>
+</head>
+    <body>
+    
+        <div class="background">
+            <div id="output" style="overflow: auto; height: 100%; width: 100%;"></div>
+            
+            <div>
+                User: <input type="text" id="username">
+            </div>
+
+            <div>
+                <textarea id="text" cols="30" rows="1"></textarea>
+                <button id="send">Send</button>
+            </div>
+            
+        </div>
+        
+        
+
+        
+        
+        <!-- ここから参照元 -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="main.js"></script>
+
+            <script type="module">
+                // Import the functions you need from the SDKs you need
+                import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+                // TODO: Add SDKs for Firebase products that you want to use
+                // https://firebase.google.com/docs/web/setup#available-libraries
+
+                // initializeAppというObjectがfrom先のURLから輸入できる。
+
+                // 追加１
+                import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved } 
+                from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+                // ｛｝内のアクションをObjectとして輸入
+            
+                // Your web app's Firebase configuration
+                const firebaseConfig = {
+                apiKey: "AIzaSyDjfZmnuIY6bKFhuiGO1IiEvAHtHoOJ2ho",
+                authDomain: "gsdemo-2e95d.firebaseapp.com",
+                projectId: "gsdemo-2e95d",
+                storageBucket: "gsdemo-2e95d.appspot.com",
+                messagingSenderId: "645439245036",
+                appId: "1:645439245036:web:0551ff79be0d21901a33c9"
+                };
+            
+                // Initialize Firebase
+                const app = initializeApp(firebaseConfig);
+
+                // 追加２
+                const db  = getDatabase(app); //RealtimeDBに接続
+                const dbRef = ref(db,"chat"); //RealtimeDB内の"chat"を使う
+                
+                // const appでinitializeAppはアクション。
+                // （）でfirebaseConfigを関数を呼び出す。
+                // const dbでdbがgetDatabaseというアクションをapp定数を引数として呼び出すという関数を作成。
+                // refというアクションがdbと"chat"という引数を呼び出す。dbRefという定数内でそれが起こることを定義する。
+
+              
+
+                $('#send').on('click',function(){
+                const text =$('#text').val();
+                const username=$('#username').val();
+                
+                    // $でsendボタンを呼び出してこれをクリックしたら関数が始動するように設定。
+                    // cost text定数内でtextareaを呼び出して、valで入力された数値を返すように指定。
+                    // const username内でユーザー名を呼び出して、.valで入力された数値を()内に書き出し、返すように指定。
+                
+                    const msg = {
+                    text: $('#text').val(), 
+                    username: $('#username').val(),
+                    };
+
+                    const newPsotRef = push(dbRef);
+                    // pushでdbRefを追加
+                    // push() メソッドは、配列の末尾に 1 つ以上の要素を追加することができます。また戻り値として新しい配列の要素数を返します。
+
+                    set(newPsotRef,msg);
+                    // setオブジェクトは、JavaScriptで用意されているオブジェクトの一つで、データをリスト形式で保持する機能を持ちます。
+                    // 重複する値を保持できないこと
+                    // 添字の概念が存在しないのでsetオブジェクトで値を取得するには、反復処理を実装することが前提
+                    // newPostrefとmsgがリスト形式で格納されている。
+                    // msgはdataがvalがinputタグとなる。
+                
+                });
+
+                
+                onChildAdded(dbRef,function(data){
+                // onChildAddedは受診の処理の時に使用する。
+                    const msg = data.val();
+                    const key = data.key;
+
+                    let h =`
+                    <p>${msg.username}<br>${msg.text}</p>
+                    <button class="delete">Unsend</button>`
+                        $("#output").append(h);
+                    // outputの最後に追加
+                });
+
+                // $(document).on("click", ".delete", function(){
+                // alert("本当に削除しますか？");
+                // });
+
+                
+                    $(document).on("click", ".delete", function(){
+                    var result = window.confirm('このメッセージを削除しますか？');
+
+                    if(result){
+                    var select = $(this).parent().data().key;
+                    console.log(select, '削除');
+                    $(this).remove();
+                    };
+                });
+
+                    
+
+                
+
+
+                // onChildAdded(dbRef,function(data){
+                //     // onChildAddedは受診の処理の時に使用する。
+                
+                //     // msgはdataにinputタグ（.valで取得）が数値が設定された定数。
+                //     //const keyでdataを鍵化
+                
+                //         let h =`
+                //         <p>${msg.username}<br>${msg.text}</p>`;
+                //             $("#output").append(h);
+                //     // divでoutputという空白の箱を作っている。
+                //     // appendで最後に追加されるようになっている
+                //     // msgでusernameとなったObjectで＄で呼び出す。
+                
+                //     });
+
+
+            </script>
+    </body>
+</html>
